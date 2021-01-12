@@ -3,30 +3,6 @@
 const path = require('path');
 const colors = require('colors');
 const ffmpeg = require('fluent-ffmpeg');
-const imagemin = require('imagemin');
-const imageminJpegtran = require('imagemin-jpegtran');
-const imageminPngquant = require('imagemin-pngquant');
-const imageminGifsicle = require('imagemin-gifsicle');
-const imageminSvgo = require('imagemin-svgo');
-
-const compressor = async (input) => {
-  const files = await imagemin([input], {
-    destination: './',
-    plugins: [
-      imageminJpegtran(),
-      imageminGifsicle(),
-      imageminSvgo({
-        plugins: [
-          { removeViewBox: false }
-        ]
-      }),
-      imageminPngquant({
-        quality: [0.7, 0.9]
-      })
-    ]
-  });
-};
-
 
 /**
  * Media Converter Function
@@ -48,22 +24,6 @@ function convert(input, output, callback, verbose = true) {
       if (callback) callback(null);
     })
     .on('end', async () => {
-      const imageExt = [".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif"];
-      if (imageExt.includes(path.extname(output).toLowerCase())) {
-        let intervaller = null;
-        if (verbose) {
-          process.stdout.write(">>".magenta + " media converted and now optimizing ...");
-          intervaller = setInterval(() => {
-            process.stdout.write(".");
-          }, 50);
-        }
-        await compressor(output).then(() => {
-          if (verbose) {
-            if(intervaller) clearInterval(intervaller);
-            console.log("");
-          }
-        });
-      }
       if (verbose) {
         console.log(`   output: '${output}'`);
         console.log('#'.brightBlue);
